@@ -1,0 +1,162 @@
+{
+  "name": "kubernetes_available_memory_for_limits_in_percentage_low",
+  "description": "This incident type refers to situations where the available memory for limits in percentage of a Kubernetes cluster is low. This can cause issues with the performance and stability of the cluster, potentially leading to downtime or other problems. The incident may be triggered by an automated query or monitoring tool that checks for certain metrics or thresholds. It is important to address and resolve this issue as soon as possible to ensure the continued health and reliability of the Kubernetes cluster.",
+  "params": [
+    {
+      "name": "POD_NAME",
+      "value": ""
+    },
+    {
+      "name": "CONTAINER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    },
+    {
+      "name": "MEMORY_THRESHOLD",
+      "value": ""
+    },
+    {
+      "name": "POD_LABEL",
+      "value": ""
+    },
+    {
+      "name": "CONTEXT_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Kubernetes - Available Memory for Limits in percentage Low\nThis incident type refers to situations where the available memory for limits in percentage of a Kubernetes cluster is low. This can cause issues with the performance and stability of the cluster, potentially leading to downtime or other problems. The incident may be triggered by an automated query or monitoring tool that checks for certain metrics or thresholds. It is important to address and resolve this issue as soon as possible to ensure the continued health and reliability of the Kubernetes cluster."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the available memory for limits in percentage for all nodes in the cluster"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl top nodes | awk '{print $1,$4}' | column -t`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the available memory for limits in percentage for all pods in the cluster"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl top pods --all-namespaces | awk '{print $1,$2,$4}' | column -t`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the resource requests and limits for all pods in the cluster"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl describe pods | grep -e 'Name:\\|Limits\\|Requests'`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the memory usage for specific container in a pod"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "container | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE | name=$$CONTAINER_NAME | `sh -c \"free -m\"`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the logs for a specific pod to see if any errors or issues are occurring"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl logs ${POD_NAME}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the event log for the cluster to see if any events are being generated related to memory usage"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get events`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the cluster autoscaler to see if it is scaling up or down properly based on resource usage"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get hpa`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the cluster pods and nodes status"
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get pods,nodes`"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the resource requests and limits for the pods running on the Kubernetes cluster to ensure they are properly configured. Adjust any values as necessary, keeping in mind the available resources on the cluster."
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_auto_set_resource_limits($NAMESPACE)"
+    },
+    {
+      "name": "cell_20",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Identify and terminate any pods or containers that are using excessive amounts of memory, either due to a memory leak or other issue. This can free up resources for other parts of the cluster."
+    },
+    {
+      "name": "cell_21",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_memory_usage_check($MEMORY_THRESHOLD)"
+    }
+  ]
+}
